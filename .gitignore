@@ -1,0 +1,11 @@
+# Build output
+clipflow
+ClipFlow.app/
+
+# Go
+*.exe
+*.test
+*.out
+
+# macOS
+.DS_Store
