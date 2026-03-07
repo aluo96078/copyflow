@@ -42,4 +42,8 @@ PLIST
 echo "Signing ClipFlow.app..."
 codesign --force --deep --sign - ClipFlow.app
 
-echo "Done! Run with: open ClipFlow.app"
+echo "Installing to /Applications..."
+cp -R ClipFlow.app /Applications/ClipFlow.app
+codesign --force --deep --sign - /Applications/ClipFlow.app
+
+echo "Done! Run with: open /Applications/ClipFlow.app"

@@ -9,10 +9,12 @@
 
 - **Ctrl+V** 開啟剪貼簿歷程面板 / Open clipboard history panel
 - **Cmd+C / Cmd+V** 系統複製貼上不受影響 / System copy-paste works as usual
-- 自動記錄文字與圖片複製 / Auto-record text & image copies
+- 自動記錄文字與圖片複製（最多 50 筆）/ Auto-record text & image copies (up to 50 entries)
 - 截圖自動存入剪貼簿歷程（不留檔案在磁碟上）/ Screenshots auto-saved to history (no files left on disk)
-- 系統列圖示快速操作 / Menu bar icon for quick actions
+- 自動停用截圖縮圖預覽以加速偵測，退出時自動恢復 / Auto-disables screenshot thumbnail for faster detection, restores on quit
+- 系統列圖示快速操作（暫停/恢復、清除歷程、結束）/ Menu bar icon for quick actions
 - 鍵盤導覽：↑↓ 選取、↵ 貼上、Esc 關閉 / Keyboard navigation
+- 毛玻璃背景卡片式 UI / Vibrancy blur card-style UI
 
 ## 安裝 Installation
 
@@ -37,22 +39,30 @@ Requires Go 1.24+ and Xcode Command Line Tools.
 git clone https://github.com/YOUR_USERNAME/ClipFlow.git
 cd ClipFlow
 bash build.sh
-open ClipFlow.app
+open /Applications/ClipFlow.app
 ```
+
+`build.sh` 會自動編譯、打包 `.app`、簽名並安裝到 `/Applications`。
+
+`build.sh` will automatically build, package `.app`, sign, and install to `/Applications`.
 
 ## 使用方式 Usage
 
-1. 啟動 `ClipFlow.app`
-2. 首次啟動需授予「輔助使用」權限（系統設定 > 隱私權與安全性 > 輔助使用）
+1. 啟動 `ClipFlow.app`（需從 `/Applications` 啟動）
+2. 首次啟動會自動打開系統設定，請在「輔助使用」中授權 ClipFlow
 3. 按 **Ctrl+V** 開啟剪貼簿歷程
-4. 選取項目後自動貼上
+4. 使用 ↑↓ 選取項目，按 ↵ 貼上，按 Esc 關閉
 
 ---
 
-1. Launch `ClipFlow.app`
-2. Grant Accessibility permission on first launch (System Settings > Privacy & Security > Accessibility)
+1. Launch `ClipFlow.app` (must run from `/Applications`)
+2. On first launch, System Settings will open automatically — grant Accessibility permission to ClipFlow
 3. Press **Ctrl+V** to open clipboard history
-4. Select an item to paste
+4. Use ↑↓ to select, ↵ to paste, Esc to close
+
+> **注意 Note:** ClipFlow 必須從 `/Applications` 啟動，否則 macOS 輔助使用權限可能無法正常授權。
+>
+> ClipFlow must be launched from `/Applications` for Accessibility permissions to work correctly on macOS.
 
 ## 系統需求 Requirements
 

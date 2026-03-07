@@ -80,6 +80,8 @@ func main() {
 	if !hotkey.CheckAccessibility() {
 		fmt.Println("請在「系統設定 > 隱私權與安全性 > 輔助使用」中允許本程式")
 		fmt.Println("授權後將自動啟用快捷鍵，請稍候...")
+		// Open System Settings directly to Accessibility page
+		exec.Command("open", "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility").Run()
 		go func() {
 			for {
 				time.Sleep(2 * time.Second)
