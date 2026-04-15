@@ -49,14 +49,20 @@ func Show(items []clipboard.ClipboardItem) {
 			C.free(unsafe.Pointer(cPreview))
 
 		case clipboard.TypeImage:
+			if len(item.ImageData) == 0 {
+				C.free(unsafe.Pointer(cTime))
+				continue
+			}
 			cSize := C.CString(item.Preview)
+			cData := C.CBytes(item.ImageData)
 			C.addImageItem(
 				C.int(i),
-				unsafe.Pointer(&item.ImageData[0]),
+				cData,
 				C.int(len(item.ImageData)),
 				cSize,
 				cTime,
 			)
+			C.free(cData)
 			C.free(unsafe.Pointer(cSize))
 		}
 

@@ -6,19 +6,20 @@ import (
 	"image"
 	_ "image/png"
 	"log"
+	"sync/atomic"
 	"time"
 )
 
 type Monitor struct {
-	storage     *Storage
-	interval    time.Duration
-	lastCount   int
-	paused      bool
-	stopCh      chan struct{}
+	storage   *Storage
+	interval  time.Duration
+	lastCount int
+	paused    atomic.Bool
+	stopCh    chan struct{}
 }
 
 func (m *Monitor) IsPaused() bool {
-	return m.paused
+	return m.paused.Load()
 }
 
 func NewMonitor(storage *Storage, interval time.Duration) *Monitor {
@@ -39,7 +40,7 @@ func (m *Monitor) Stop() {
 }
 
 func (m *Monitor) SetPaused(paused bool) {
-	m.paused = paused
+	m.paused.Store(paused)
 }
 
 func (m *Monitor) poll() {
@@ -51,7 +52,7 @@ func (m *Monitor) poll() {
 		case <-m.stopCh:
 			return
 		case <-ticker.C:
-			if m.paused {
+			if m.paused.Load() {
 				continue
 			}
 			m.check()

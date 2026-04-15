@@ -33,6 +33,7 @@ extern void onItemSelected(int index);
         _titleLabel.maximumNumberOfLines = 2;
         _titleLabel.cell.truncatesLastVisibleLine = YES;
         [_titleLabel setContentCompressionResistancePriority:NSLayoutPriorityDefaultLow forOrientation:NSLayoutConstraintOrientationHorizontal];
+        [_titleLabel setContentCompressionResistancePriority:NSLayoutPriorityDefaultLow forOrientation:NSLayoutConstraintOrientationVertical];
 
         _subtitleLabel = [NSTextField labelWithString:@""];
         _subtitleLabel.font = [NSFont systemFontOfSize:10];
@@ -56,11 +57,12 @@ extern void onItemSelected(int index);
         [NSLayoutConstraint activateConstraints:@[
             [_titleLabel.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:12],
             [_titleLabel.trailingAnchor constraintLessThanOrEqualToAnchor:self.trailingAnchor constant:-12],
-            [_titleLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:10],
+            [_titleLabel.topAnchor constraintEqualToAnchor:self.topAnchor constant:8],
 
             [_subtitleLabel.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:12],
             [_subtitleLabel.trailingAnchor constraintLessThanOrEqualToAnchor:self.trailingAnchor constant:-12],
-            [_subtitleLabel.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:-8],
+            [_subtitleLabel.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:-6],
+            [_subtitleLabel.topAnchor constraintGreaterThanOrEqualToAnchor:_titleLabel.bottomAnchor constant:4],
         ]];
     }
     return self;
@@ -170,6 +172,11 @@ extern void onItemSelected(int index);
         _panel.titlebarAppearsTransparent = YES;
         _panel.movableByWindowBackground = YES;
         _panel.backgroundColor = [NSColor clearColor];
+        // Lock the panel size so it never shrinks/grows with contents
+        NSSize fixedSize = NSMakeSize(360, 480);
+        _panel.minSize = fixedSize;
+        _panel.maxSize = fixedSize;
+        [_panel setContentSize:fixedSize];
 
         _effectView = [[NSVisualEffectView alloc] initWithFrame:frame];
         _effectView.material = NSVisualEffectMaterialHUDWindow;
@@ -334,14 +341,14 @@ void addTextItem(int index, const char *preview, const char *timeStr) {
     NSString *text = [NSString stringWithUTF8String:preview];
     NSString *time = [NSString stringWithUTF8String:timeStr];
 
-    ClipboardItemView *item = [[ClipboardItemView alloc] initWithFrame:NSMakeRect(0, 0, 336, 58)];
+    ClipboardItemView *item = [[ClipboardItemView alloc] initWithFrame:NSMakeRect(0, 0, 336, 72)];
     item.itemIndex = index;
     item.isImageItem = NO;
     item.titleLabel.stringValue = text;
     item.subtitleLabel.stringValue = [NSString stringWithFormat:@"Aa  %@", time];
 
     [NSLayoutConstraint activateConstraints:@[
-        [item.heightAnchor constraintEqualToConstant:58],
+        [item.heightAnchor constraintEqualToConstant:72],
     ]];
 
     [panelController.stackView addArrangedSubview:item];
@@ -392,7 +399,7 @@ void showPanel(void) {
     if (x + panelW > NSMaxX(screenFrame)) x = NSMaxX(screenFrame) - panelW - 10;
     if (y < screenFrame.origin.y) y = screenFrame.origin.y + 10;
 
-    [panelController.panel setFrameOrigin:NSMakePoint(x, y)];
+    [panelController.panel setFrame:NSMakeRect(x, y, panelW, panelH) display:YES];
     [panelController.panel makeKeyAndOrderFront:nil];
     [panelController.panel makeFirstResponder:keyView];
     [NSApp activateIgnoringOtherApps:YES];

@@ -10,15 +10,18 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 )
 
 type ScreenshotMonitor struct {
-	storage  *Storage
-	dir      string
-	stopCh   chan struct{}
-	paused   bool
-	known    map[string]bool
+	storage *Storage
+	dir     string
+	stopCh  chan struct{}
+	paused  atomic.Bool
+	mu      sync.Mutex
+	known   map[string]bool
 }
 
 func NewScreenshotMonitor(storage *Storage) *ScreenshotMonitor {
@@ -56,7 +59,7 @@ func (sm *ScreenshotMonitor) Stop() {
 }
 
 func (sm *ScreenshotMonitor) SetPaused(paused bool) {
-	sm.paused = paused
+	sm.paused.Store(paused)
 }
 
 func (sm *ScreenshotMonitor) SetDir(dir string) {
@@ -68,6 +71,8 @@ func (sm *ScreenshotMonitor) indexExisting() {
 	if err != nil {
 		return
 	}
+	sm.mu.Lock()
+	defer sm.mu.Unlock()
 	for _, e := range entries {
 		if isScreenshotFile(e.Name()) {
 			sm.known[e.Name()] = true
@@ -84,7 +89,7 @@ func (sm *ScreenshotMonitor) poll() {
 		case <-sm.stopCh:
 			return
 		case <-ticker.C:
-			if sm.paused {
+			if sm.paused.Load() {
 				continue
 			}
 			sm.check()
@@ -103,10 +108,13 @@ func (sm *ScreenshotMonitor) check() {
 		if !isScreenshotFile(name) {
 			continue
 		}
+		sm.mu.Lock()
 		if sm.known[name] {
+			sm.mu.Unlock()
 			continue
 		}
 		sm.known[name] = true
+		sm.mu.Unlock()
 		log.Printf("[ClipFlow] New screenshot detected: %s", name)
 
 		fullPath := filepath.Join(sm.dir, name)

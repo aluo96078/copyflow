@@ -55,5 +55,10 @@ func SetText(text string) {
 }
 
 func SetImage(data []byte) {
-	C.setPasteboardImage(unsafe.Pointer(&data[0]), C.int(len(data)))
+	if len(data) == 0 {
+		return
+	}
+	cData := C.CBytes(data)
+	defer C.free(cData)
+	C.setPasteboardImage(cData, C.int(len(data)))
 }
